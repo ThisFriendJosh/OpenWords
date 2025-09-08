@@ -24,3 +24,4 @@ def search_text(q: str = Query(..., min_length=2), top_k: int = 20):
 def ingest_url(url: str):
     job_id = tasks.ingest_from_url.delay(url).id
     return {"job_id": job_id}
+    return {"job_id": job_id}
