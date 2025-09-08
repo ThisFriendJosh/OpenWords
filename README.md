@@ -25,4 +25,16 @@ open http://localhost:3000  # (mac)  or  xdg-open http://localhost:3000
 - MinIO console: http://localhost:9001 (user: `minio`, pass: `minio123`)
 - Postgres: localhost:5432 (user: postgres / password: postgres)
 
+
+### Docker image versions
+Images are pinned for reproducibility:
+
+- API/Worker: `python:3.11-slim`
+- Web: `node:20`
+- Postgres: `16`
+- OpenSearch: `opensearchproject/opensearch:2.13.0`
+- Qdrant: `qdrant/qdrant:v1.7.3`
+- MinIO: `minio/minio:RELEASE.2024-04-18T19-09-19Z`
+- Redis: `redis:7`
+
 > **Note:** This is a skeleton intended for extension. Ingest/transcription is stubbed.

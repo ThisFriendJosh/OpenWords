@@ -1,3 +1,4 @@
+
 """Search indexing and query stubs."""
 
 import os
@@ -187,4 +188,5 @@ def hybrid_search(query: str, k: int = 20):
         "results": [
             {"media_id": "demo", "t0": 12.34, "t1": 18.9, "text": "Example snippet matching: " + query}
         ][:k]
+    }
     }

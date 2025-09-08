@@ -25,3 +25,4 @@ def ingest_url(url: str):
     job_id = tasks.ingest_from_url.delay(url).id
     return {"job_id": job_id}
     return {"job_id": job_id}
+    return {"job_id": job_id}

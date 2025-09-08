@@ -16,9 +16,20 @@ services:
       - MINIO_ACCESS_KEY=minio
       - MINIO_SECRET_KEY=minio123
       - REDIS_URL=redis://redis:6379/0
+
+    depends_on:
+      db:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     depends_on: [ db, opensearch, qdrant, minio, redis ]
     ports: [ "8000:8000" ]
-
   worker:
     image: python:3.11-slim
     working_dir: /app
@@ -31,6 +42,15 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - OPENSEARCH_URL=http://opensearch:9200
       - QDRANT_URL=http://qdrant:6333
+    depends_on:
+      api:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
     depends_on: [ api, redis ]
 
   web:
@@ -46,6 +66,11 @@ services:
 
   db:
     image: postgres:16
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: openwords
@@ -58,13 +83,30 @@ services:
       plugins.security.disabled: "true"
       OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
     ports: [ "9200:9200" ]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200 >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  qdrant:
+    image: qdrant/qdrant:v1.7.3
+    ports: [ "6333:6333" ]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:6333/healthz >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:RELEASE.2024-04-18T19-09-19Z
 
   qdrant:
     image: qdrant/qdrant:latest
     ports: [ "6333:6333" ]
 
   minio:
-    image: minio/minio
+    image: minio/minio:RELEASE.2024-04-18T19-09-19Z
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: minio
@@ -72,6 +114,20 @@ services:
     volumes:
       - ./data/minio:/data
     ports: [ "9000:9000", "9001:9001" ]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/minio/health/live >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    ports: [ "6379:6379" ]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7

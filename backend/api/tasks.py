@@ -130,3 +130,4 @@ def ingest_from_url(url: str):
     # TODO: download with yt-dlp, transcribe (Whisper/WhisperX), index into search
     media_id = str(uuid.uuid4())
     return {"media_id": media_id, "url": url, "status": "stubbed"}
+    return {"media_id": media_id, "url": url, "status": "stubbed"}
